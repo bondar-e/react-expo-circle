@@ -2,9 +2,8 @@ import { useState } from 'react';
 
 import { Circle } from 'components/Circle';
 import { CurrentSector } from 'components/CurrentSector';
-import { Layout } from 'components/Layout';
+import { Layout, Spacer } from 'components/shared';
 import { Sector } from 'components/Circle/types';
-import { Spacer } from 'components/Spacer';
 import { TextField } from 'components/TextField';
 
 const App: React.FC = () => {
@@ -12,7 +11,8 @@ const App: React.FC = () => {
   const [currentSector, setCurrentSector] = useState<Sector>();
 
   const onChangeSectors = (text: string) => {
-    setSectorsNumber(text);
+    setSectorsNumber((prevText) => (prevText !== text ? text : prevText));
+    setCurrentSector(undefined);
   };
 
   const changeCurrentSector = (sector?: Sector) => {
@@ -26,14 +26,17 @@ const App: React.FC = () => {
       <CurrentSector sector={currentSector} />
       <Spacer size={4} />
       <TextField
-        label="Number of sectors"
+        label="Number of sectors (more than 1)"
         value={sectorsNumber}
         keyboardType="number-pad"
         autoFocus
         onChangeText={onChangeSectors}
       />
       <Spacer size={8} />
-      <Circle numberOfSectors={Number(sectorsNumber)} changeCurrentSector={changeCurrentSector} />
+      <Circle
+        numberOfSectors={Number(sectorsNumber) > 0 ? Number(sectorsNumber) : undefined}
+        changeCurrentSector={changeCurrentSector}
+      />
     </Layout>
   );
 };

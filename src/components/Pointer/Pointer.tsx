@@ -1,5 +1,3 @@
-import React from 'react';
-
 import PointerIcon from 'assets/PointerIcon.svg';
 import { colors } from 'theme';
 import { styles } from './Pointer.styles';

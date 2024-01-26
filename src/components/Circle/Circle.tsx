@@ -1,12 +1,12 @@
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { CircleProps } from './types';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import React, { useDeferredValue, useMemo } from 'react';
+import { useDeferredValue, useMemo } from 'react';
 import { Svg } from 'react-native-svg';
 import { View } from 'react-native';
 
 import { CircleSectors } from './components';
-import { getCircleSize, getSectors } from 'utils/circleUtils';
+import { getCircleSize, getCurrentSectorIndex, getSectors } from 'utils/circleUtils';
 import { Pointer } from 'components/Pointer';
 import { styles } from './Circle.styles';
 
@@ -16,17 +16,15 @@ const Circle: React.FC<CircleProps> = ({ numberOfSectors = 1, changeCurrentSecto
   const sectorArcDeg = useDeferredValue(360 / numberOfSectors);
 
   const spinValue = useSharedValue(0);
-  const animatedStyles = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotateZ: `${spinValue.value}deg` }],
-    };
-  });
+  const animatedStyles = useAnimatedStyle(() => ({
+    transform: [{ rotateZ: `${spinValue.value}deg` }],
+  }));
 
   const sectors = useMemo(() => getSectors(numberOfSectors), [numberOfSectors]);
 
   const handleCurrentSector = (value: number) => {
     const rotationDeg = parseInt(value.toFixed(), 10);
-    const sectorIndex = Math.abs(Math.floor(rotationDeg / sectorArcDeg) - numberOfSectors) - 1;
+    const sectorIndex = getCurrentSectorIndex(rotationDeg, sectorArcDeg, numberOfSectors);
 
     changeCurrentSector(sectors[sectorIndex]);
   };
@@ -35,10 +33,7 @@ const Circle: React.FC<CircleProps> = ({ numberOfSectors = 1, changeCurrentSecto
   const gesture = Gesture.Pan().onUpdate((e) => {
     spinValue.value = withTiming(
       Math.abs(e.velocityY) / 4 + spinValue.value,
-      {
-        duration: 5000,
-        easing: easing,
-      },
+      { duration: 5000, easing: easing },
       (finished) => {
         if (finished) {
           runOnJS(handleCurrentSector)(spinValue.value % 360);
@@ -48,11 +43,11 @@ const Circle: React.FC<CircleProps> = ({ numberOfSectors = 1, changeCurrentSecto
   });
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, numberOfSectors <= 1 ? styles.disabled : {}]}>
       <Pointer />
       <GestureHandlerRootView style={styles.gestureView}>
         <GestureDetector gesture={gesture}>
-          <Animated.View style={animatedStyles}>
+          <Animated.View style={animatedStyles} aria-disabled>
             <Svg height={CIRCLE_SIZE} width={CIRCLE_SIZE} viewBox="-1 -1 2 2" style={styles.circle}>
               <CircleSectors sectors={sectors} />
             </Svg>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { Label } from 'components/Label';
-import { TextInput } from 'components/TextInput';
-import { Spacer } from 'components/Spacer';
+import { Label } from 'components/shared/Label';
+import { TextInput } from 'components/shared/TextInput';
+import { Spacer } from 'components/shared/Spacer';
 import { TextFieldProps } from './types';
 import { styles } from './TextField.styles';
 
